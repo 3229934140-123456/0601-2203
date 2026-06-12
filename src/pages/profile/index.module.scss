@@ -267,3 +267,54 @@
   height: 32rpx;
   color: $color-text-tertiary;
 }
+
+.recordCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.filterRow {
+  display: flex;
+  white-space: nowrap;
+  margin-bottom: $spacing-md;
+  gap: $spacing-sm;
+}
+
+.filterTag {
+  display: inline-block;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background-color: $color-bg-hover;
+  flex-shrink: 0;
+  @include clickable;
+}
+
+.filterTagActive {
+  background-color: $color-tag-borrow;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.recordTitleRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.checkInTimeText {
+  font-size: $font-size-xs;
+  color: $color-success;
+  margin-top: 4rpx;
+}
+
+.recordArrow {
+  width: 32rpx;
+  height: 32rpx;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+  font-size: 28rpx;
+  align-self: center;
+}

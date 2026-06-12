@@ -3,9 +3,15 @@ import { View, Text, Image, ScrollView, Input } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { useAppStore } from '@/store/useAppStore';
+import { useAppStore, RosterMember } from '@/store/useAppStore';
 import { Activity, VolunteerPosition } from '@/types';
 import { formatDateTime, formatTimeRange } from '@/utils/format';
+
+const ROSTER_FILTERS = [
+  { value: 'all', label: '全部' },
+  { value: 'checked', label: '已签到' },
+  { value: 'unchecked', label: '待签到' },
+];
 
 const ActivityDetailPage: React.FC = () => {
   const router = useRouter();
@@ -14,6 +20,8 @@ const ActivityDetailPage: React.FC = () => {
   const activityList = useAppStore(s => s.activityList);
   const hasCheckedIn = useAppStore(s => s.hasCheckedIn);
   const getAbsentMembers = useAppStore(s => s.getAbsentMembers);
+  const getRoster = useAppStore(s => s.getRoster);
+  const getCheckInRecords = useAppStore(s => s.getCheckInRecords);
   const signUpActivity = useAppStore(s => s.signUpActivity);
   const cancelSignUp = useAppStore(s => s.cancelSignUp);
   const checkIn = useAppStore(s => s.checkIn);
@@ -21,10 +29,31 @@ const ActivityDetailPage: React.FC = () => {
 
   const [selectedPosition, setSelectedPosition] = useState<string | null>(null);
   const [checkInInput, setCheckInInput] = useState('');
+  const [rosterFilter, setRosterFilter] = useState('all');
+  const [rosterPositionFilter, setRosterPositionFilter] = useState<string>('all');
 
   const activity = useMemo<Activity | undefined>(() => {
     return activityList.find(a => a.id === activityId);
   }, [activityList, activityId]);
+
+  const isSignedUp = activity?.signedParticipants.includes(currentUser.id) || false;
+  const isCheckedIn = activity ? hasCheckedIn(activity.id, currentUser.id) : false;
+  const absentMembers = activity ? getAbsentMembers(activity.id) : [];
+  const fullRoster = activity ? getRoster(activity.id) : [];
+  const checkInRecords = activity ? getCheckInRecords(activity.id) : [];
+
+  const filteredRoster = useMemo(() => {
+    let list = fullRoster;
+    if (rosterFilter === 'checked') {
+      list = list.filter(m => m.checkedIn);
+    } else if (rosterFilter === 'unchecked') {
+      list = list.filter(m => !m.checkedIn);
+    }
+    if (rosterPositionFilter !== 'all') {
+      list = list.filter(m => m.positionId === rosterPositionFilter || (!m.positionId && rosterPositionFilter === 'none'));
+    }
+    return list;
+  }, [fullRoster, rosterFilter, rosterPositionFilter]);
 
   useDidShow(() => {
     console.log('[ActivityDetail] Page did show, activityId:', activityId);
@@ -48,10 +77,6 @@ const ActivityDetailPage: React.FC = () => {
       default: return '即将开始';
     }
   };
-
-  const isSignedUp = activity?.signedParticipants.includes(currentUser.id) || false;
-  const isCheckedIn = activity ? hasCheckedIn(activity.id, currentUser.id) : false;
-  const absentMembers = activity ? getAbsentMembers(activity.id) : [];
 
   const handleSignUp = () => {
     if (!activity) return;
@@ -131,27 +156,20 @@ const ActivityDetailPage: React.FC = () => {
     }
     Taro.showModal({
       title: '发送提醒',
-      content: `确定要向${activity.signedParticipants.length}位已报名成员发送活动提醒吗？`,
+      content: `确定要向${absentMembers.length}位未签到成员发送活动提醒吗？`,
       success: (res) => {
         if (res.confirm && activity) {
-          const ok = sendReminder(activity.id);
-          if (ok) {
-            Taro.showToast({ title: '提醒已发送', icon: 'success' });
+          const result = sendReminder(activity.id);
+          if (result.success) {
+            Taro.showToast({ title: `已向${result.absentCount}人发送提醒`, icon: 'success' });
           }
         }
       },
     });
   };
 
-  const handleViewAbsent = () => {
-    if (!currentUser.isPresident) {
-      Taro.showToast({ title: '仅社长可查看缺席名单', icon: 'none' });
-      return;
-    }
-    if (absentMembers.length === 0) {
-      Taro.showToast({ title: '暂无缺席成员', icon: 'none' });
-      return;
-    }
+  const handleMemberClick = (userId: string) => {
+    Taro.navigateTo({ url: `/pages/member-detail/index?id=${userId}` });
   };
 
   if (!activity) {
@@ -316,7 +334,122 @@ const ActivityDetailPage: React.FC = () => {
         </View>
       )}
 
-      {(activity.status === 'ongoing' || activity.status === 'ended') && currentUser.isPresident && (
+      {currentUser.isPresident && activity.signedParticipants.length > 0 && (
+        <View className={styles.section}>
+          <View className={styles.sectionHeaderRow}>
+            <Text className={styles.sectionTitle}>
+              报名名单
+              <Text style={{ fontSize: 24, color: '#64748b', fontWeight: 'normal', marginLeft: 8 }}>
+                {activity.signedParticipants.length}人
+              </Text>
+            </Text>
+            {checkInRecords.length > 0 && (
+              <Text className={styles.checkInCount}>
+                已签到 {checkInRecords.length}
+              </Text>
+            )}
+          </View>
+
+          <ScrollView scrollX className={styles.filterRow}>
+            {ROSTER_FILTERS.map((f) => (
+              <Text
+                key={f.value}
+                className={classnames(styles.filterTag, rosterFilter === f.value && styles.filterTagActive)}
+                onClick={() => setRosterFilter(f.value)}
+              >
+                {f.label}
+              </Text>
+            ))}
+            {activity.positions.length > 0 && (
+              <>
+                <Text
+                  className={classnames(styles.filterTag, rosterPositionFilter === 'all' && styles.filterTagActive)}
+                  onClick={() => setRosterPositionFilter('all')}
+                >
+                  全部岗位
+                </Text>
+                {activity.positions.map((pos) => (
+                  <Text
+                    key={pos.id}
+                    className={classnames(styles.filterTag, rosterPositionFilter === pos.id && styles.filterTagActive)}
+                    onClick={() => setRosterPositionFilter(pos.id)}
+                  >
+                    {pos.name}
+                  </Text>
+                ))}
+                <Text
+                  className={classnames(styles.filterTag, rosterPositionFilter === 'none' && styles.filterTagActive)}
+                  onClick={() => setRosterPositionFilter('none')}
+                >
+                  无岗位
+                </Text>
+              </>
+            )}
+          </ScrollView>
+
+          {filteredRoster.length > 0 ? (
+            <View className={styles.rosterList}>
+              {filteredRoster.map((member: RosterMember) => (
+                <View
+                  key={member.userId}
+                  className={styles.rosterItem}
+                  onClick={() => handleMemberClick(member.userId)}
+                >
+                  <Image className={styles.rosterAvatar} src={member.avatar} mode="aspectFill" />
+                  <View className={styles.rosterInfo}>
+                    <View className={styles.rosterNameRow}>
+                      <Text className={styles.rosterName}>{member.name}</Text>
+                      {member.checkedIn ? (
+                        <Text className={classnames('tag', 'tagSuccess')}>✅ 已签到</Text>
+                      ) : (
+                        <Text className={classnames('tag', 'tagWarning')}>待签到</Text>
+                      )}
+                    </View>
+                    <Text className={styles.rosterDetail}>
+                      {member.positionName ? `岗位：${member.positionName}` : '普通参与'}
+                      {' · '}{member.department}
+                    </Text>
+                    {member.checkedIn && member.checkInTime && (
+                      <Text className={styles.rosterCheckInTime}>
+                        签到时间：{formatDateTime(member.checkInTime)}
+                      </Text>
+                    )}
+                  </View>
+                  <Text className={styles.rosterArrow}>›</Text>
+                </View>
+              ))}
+            </View>
+          ) : (
+            <View className="emptyState" style={{ padding: '40rpx 0' }}>
+              <Text className="emptyText">无匹配成员</Text>
+            </View>
+          )}
+        </View>
+      )}
+
+      {(activity.status === 'ongoing' || activity.status === 'ended') && currentUser.isPresident && checkInRecords.length > 0 && (
+        <View className={styles.section}>
+          <Text className={styles.sectionTitle}>
+            签到记录
+            <Text style={{ fontSize: 24, color: '#22c55e', fontWeight: 'normal', marginLeft: 8 }}>
+              {checkInRecords.length}人
+            </Text>
+          </Text>
+          {checkInRecords.map((member: RosterMember) => (
+            <View key={member.userId} className={styles.checkInRecordItem}>
+              <Image className={styles.checkInRecordAvatar} src={member.avatar} mode="aspectFill" />
+              <View className={styles.checkInRecordInfo}>
+                <Text className={styles.checkInRecordName}>{member.name}</Text>
+                <Text className={styles.checkInRecordTime}>
+                  {member.checkInTime ? formatDateTime(member.checkInTime) : '未知时间'}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {(activity.status === 'ongoing' || activity.status === 'ended') && currentUser.isPresident && absentMembers.length > 0 && (
         <View className={styles.section}>
           <Text className={styles.sectionTitle}>
             缺席名单
@@ -324,24 +457,25 @@ const ActivityDetailPage: React.FC = () => {
               {absentMembers.length}人
             </Text>
           </Text>
-          {absentMembers.length > 0 ? (
-            <View className={styles.absentList}>
-              {absentMembers.map((member) => (
-                <View key={member.id} className={styles.absentItem}>
-                  <Image className={styles.absentAvatar} src={member.avatar} mode="aspectFill" />
-                  <View className={styles.absentInfo}>
-                    <Text className={styles.absentName}>{member.name}</Text>
-                    <Text className={styles.absentDept}>{member.department} · {member.position}</Text>
-                  </View>
+          <View className={styles.absentList}>
+            {absentMembers.map((member) => (
+              <View key={member.id} className={styles.absentItem} onClick={() => handleMemberClick(member.id)}>
+                <Image className={styles.absentAvatar} src={member.avatar} mode="aspectFill" />
+                <View className={styles.absentInfo}>
+                  <Text className={styles.absentName}>{member.name}</Text>
+                  <Text className={styles.absentDept}>{member.department} · {member.position}</Text>
                 </View>
-              ))}
-            </View>
-          ) : (
-            <View className="emptyState" style={{ padding: '40rpx 0' }}>
-              <Text className="emptyIcon">🎉</Text>
-              <Text className="emptyText">全员签到，无缺席</Text>
-            </View>
-          )}
+                <Text className={styles.rosterArrow}>›</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {(activity.status === 'ongoing' || activity.status === 'ended') && currentUser.isPresident && absentMembers.length === 0 && activity.signedParticipants.length > 0 && (
+        <View className="emptyState" style={{ padding: '40rpx 0' }}>
+          <Text className="emptyIcon">🎉</Text>
+          <Text className="emptyText">全员签到，无缺席</Text>
         </View>
       )}
 
@@ -370,8 +504,8 @@ const ActivityDetailPage: React.FC = () => {
         {activity.status === 'ongoing' && (
           <>
             {currentUser.isPresident && (
-              <Text className={classnames(styles.footerBtn, styles.btnOutline)} onClick={handleViewAbsent}>
-                查看缺席（{absentMembers.length}）
+              <Text className={classnames(styles.footerBtn, styles.btnOutline)} onClick={handleRemind}>
+                {activity.reminded ? '已发提醒' : `提醒缺席(${absentMembers.length})`}
               </Text>
             )}
             {activity.checkInCode && !isCheckedIn && !currentUser.isPresident ? (

@@ -99,12 +99,12 @@ export const mockSignUpRecords: SignUpRecord[] = [
   { id: 'sr-10', userId: 'user-6', activityId: 'act-2', activityTitle: '社团团建活动', positionId: 'pos-4', positionName: '活动策划', signedAt: '2026-06-13T10:00:00', checkedIn: false },
   { id: 'sr-11', userId: 'user-7', activityId: 'act-2', activityTitle: '社团团建活动', positionId: 'pos-4', positionName: '活动策划', signedAt: '2026-06-13T10:30:00', checkedIn: false },
 
-  { id: 'sr-3', userId: 'user-1', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T14:20:00', checkedIn: true },
+  { id: 'sr-3', userId: 'user-1', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T14:20:00', checkedIn: true, checkInTime: '2026-06-15T19:05:00' },
   { id: 'sr-12', userId: 'user-2', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T14:30:00', checkedIn: false },
-  { id: 'sr-13', userId: 'user-4', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T15:00:00', checkedIn: true },
-  { id: 'sr-14', userId: 'user-5', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T15:30:00', checkedIn: true },
-  { id: 'sr-15', userId: 'user-8', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T16:00:00', checkedIn: true },
-  { id: 'sr-16', userId: 'user-9', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T16:30:00', checkedIn: true },
+  { id: 'sr-13', userId: 'user-4', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T15:00:00', checkedIn: true, checkInTime: '2026-06-15T19:10:00' },
+  { id: 'sr-14', userId: 'user-5', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T15:30:00', checkedIn: true, checkInTime: '2026-06-15T19:02:00' },
+  { id: 'sr-15', userId: 'user-8', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T16:00:00', checkedIn: true, checkInTime: '2026-06-15T19:08:00' },
+  { id: 'sr-16', userId: 'user-9', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T16:30:00', checkedIn: true, checkInTime: '2026-06-15T19:15:00' },
 
   { id: 'sr-4', userId: 'user-1', activityId: 'act-4', activityTitle: '校园志愿献血活动', positionId: 'pos-6', positionName: '现场引导', signedAt: '2026-06-12T16:45:00', checkedIn: false },
   { id: 'sr-17', userId: 'user-3', activityId: 'act-4', activityTitle: '校园志愿献血活动', positionId: 'pos-6', positionName: '现场引导', signedAt: '2026-06-12T17:00:00', checkedIn: false },

@@ -399,3 +399,137 @@
   color: $color-text-secondary;
   margin-top: 4rpx;
 }
+
+.sectionHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.checkInCount {
+  font-size: $font-size-sm;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+}
+
+.filterRow {
+  display: flex;
+  white-space: nowrap;
+  margin-bottom: $spacing-md;
+  gap: $spacing-sm;
+}
+
+.filterTag {
+  display: inline-block;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background-color: $color-bg-hover;
+  flex-shrink: 0;
+  @include clickable;
+}
+
+.filterTagActive {
+  background-color: $color-tag-borrow;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.rosterList {
+  margin-top: $spacing-sm;
+}
+
+.rosterItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  @include clickable;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rosterAvatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.rosterInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.rosterNameRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.rosterName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.rosterDetail {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.rosterCheckInTime {
+  font-size: $font-size-xs;
+  color: $color-success;
+  margin-top: 4rpx;
+}
+
+.rosterArrow {
+  width: 32rpx;
+  height: 32rpx;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+  font-size: 28rpx;
+}
+
+.checkInRecordItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.checkInRecordAvatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.checkInRecordInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkInRecordName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.checkInRecordTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}

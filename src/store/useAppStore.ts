@@ -5,7 +5,7 @@ import { mockMemberList, mockCurrentUser, mockContributionRecords, mockThankReco
 import { mockMutualAidList } from '@/data/mockMutualAid';
 import { mockActivityList, mockSignUpRecords } from '@/data/mockActivity';
 
-const STORAGE_KEY = 'club_app_store_v2';
+const STORAGE_KEY = 'club_app_store_v3';
 
 interface PersistedState {
   mutualAidList: MutualAid[];
@@ -40,11 +40,12 @@ const saveToStorage = (state: PersistedState) => {
 };
 
 const normalizeData = (state: PersistedState): PersistedState => {
-  const { activityList, signUpRecords } = state;
+  const { activityList, signUpRecords, memberList } = state;
   const newRecords = [...signUpRecords];
+  const newActivityList = activityList.map(activity => ({ ...activity }));
   let changed = false;
 
-  activityList.forEach(activity => {
+  activityList.forEach((activity, actIdx) => {
     const activityAbsentSet = new Set(activity.absentMembers);
 
     activity.signedParticipants.forEach(userId => {
@@ -72,6 +73,7 @@ const normalizeData = (state: PersistedState): PersistedState => {
           positionName,
           signedAt: activity.createdAt,
           checkedIn: activity.status === 'ended' && !isAbsent,
+          checkInTime: activity.status === 'ended' && !isAbsent ? activity.startTime : undefined,
         };
         newRecords.push(newRecord);
         changed = true;
@@ -83,33 +85,91 @@ const normalizeData = (state: PersistedState): PersistedState => {
         }
         if (existingRecord.checkedIn && activityAbsentSet.has(userId)) {
           existingRecord.checkedIn = false;
+          existingRecord.checkInTime = undefined;
           changed = true;
         }
         if (!existingRecord.checkedIn && activity.status === 'ended' && !activityAbsentSet.has(userId)) {
           existingRecord.checkedIn = true;
+          if (!existingRecord.checkInTime) {
+            existingRecord.checkInTime = activity.startTime;
+          }
+          changed = true;
+        }
+        if (existingRecord.checkedIn && !existingRecord.checkInTime) {
+          existingRecord.checkInTime = activity.startTime;
           changed = true;
         }
       }
     });
-  });
 
-  activityList.forEach(activity => {
-    activity.positions.forEach(position => {
+    const updatedPositions = newActivityList[actIdx].positions.map(position => {
       const actualCount = position.signedMembers.length;
       if (position.signedCount !== actualCount) {
-        position.signedCount = actualCount;
+        changed = true;
+        return { ...position, signedCount: actualCount };
+      }
+      return position;
+    });
+    newActivityList[actIdx] = { ...newActivityList[actIdx], positions: updatedPositions };
+  });
+
+  newRecords.forEach(record => {
+    if (!record.userId) {
+      const member = memberList.find(m =>
+        newRecords.filter(r => r.activityId === record.activityId && r.userId).length === 0
+      );
+      if (member) {
+        (record as any).userId = member.id;
         changed = true;
       }
-    });
+    }
+  });
+
+  newRecords.forEach(record => {
+    const activity = newActivityList.find(a => a.id === record.activityId);
+    if (!activity) return;
+
+    if (record.positionId && !record.positionName) {
+      const pos = activity.positions.find(p => p.id === record.positionId);
+      if (pos) {
+        record.positionName = pos.name;
+        changed = true;
+      }
+    }
+
+    if (!record.positionId && !record.positionName) {
+      const pos = activity.positions.find(p => p.signedMembers.includes(record.userId));
+      if (pos) {
+        record.positionId = pos.id;
+        record.positionName = pos.name;
+        changed = true;
+      }
+    }
+
+    if (record.positionId) {
+      const pos = activity.positions.find(p => p.id === record.positionId);
+      if (pos && !pos.signedMembers.includes(record.userId)) {
+        const updatedMembers = [...pos.signedMembers, record.userId];
+        const posIdx = activity.positions.indexOf(pos);
+        newActivityList[activityList.indexOf(activity)] = {
+          ...activity,
+          positions: activity.positions.map((p, i) =>
+            i === posIdx ? { ...p, signedMembers: updatedMembers, signedCount: updatedMembers.length } : p
+          ),
+        };
+        changed = true;
+      }
+    }
   });
 
   if (changed) {
     console.log('[Store] Data normalized, saving to storage');
-    saveToStorage({ ...state, signUpRecords: newRecords });
+    saveToStorage({ ...state, activityList: newActivityList, signUpRecords: newRecords });
   }
 
   return {
     ...state,
+    activityList: newActivityList,
     signUpRecords: newRecords,
   };
 };
@@ -124,6 +184,19 @@ const getInitialState = (): PersistedState => {
   };
   return normalizeData(rawState);
 };
+
+export interface RosterMember {
+  userId: string;
+  name: string;
+  avatar: string;
+  department: string;
+  position: string;
+  positionId?: string;
+  positionName?: string;
+  checkedIn: boolean;
+  checkInTime?: string;
+  signedAt: string;
+}
 
 interface AppState {
   currentUser: Member;
@@ -147,9 +220,11 @@ interface AppState {
   cancelSignUp: (activityId: string, userId: string) => boolean;
   checkIn: (activityId: string, userId: string, code: string) => { success: boolean; message: string };
   hasCheckedIn: (activityId: string, userId: string) => boolean;
-  sendReminder: (activityId: string) => boolean;
+  sendReminder: (activityId: string) => { success: boolean; absentCount: number };
   getActivityById: (activityId: string) => Activity | undefined;
   getAbsentMembers: (activityId: string) => Member[];
+  getRoster: (activityId: string) => RosterMember[];
+  getCheckInRecords: (activityId: string) => RosterMember[];
   getUserSignUpRecords: (userId: string) => SignUpRecord[];
   getUserSignUpCount: (userId: string) => number;
 
@@ -381,6 +456,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       ...activity,
       signedParticipants: activity.signedParticipants.filter(id => id !== userId),
       positions: updatedPositions,
+      absentMembers: activity.absentMembers.filter(id => id !== userId),
     };
 
     const newRecords = signUpRecords.filter(r => !(r.activityId === activityId && r.userId === userId));
@@ -407,6 +483,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       return { success: false, message: '您已签到，请勿重复签到' };
     }
 
+    const now = new Date().toISOString();
+
     const newActivityList = [...activityList];
     newActivityList[actIndex] = {
       ...activity,
@@ -415,14 +493,14 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     const newRecords = signUpRecords.map(r => {
       if (r.activityId === activityId && r.userId === userId) {
-        return { ...r, checkedIn: true };
+        return { ...r, checkedIn: true, checkInTime: now };
       }
       return r;
     });
 
     set({ activityList: newActivityList, signUpRecords: newRecords });
     saveToStorage({ ...get(), activityList: newActivityList, signUpRecords: newRecords });
-    console.log('[Store] Check in success:', activityId, 'user:', userId);
+    console.log('[Store] Check in success:', activityId, 'user:', userId, 'time:', now);
     return { success: true, message: '签到成功' };
   },
 
@@ -433,15 +511,22 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   sendReminder: (activityId) => {
-    const { activityList } = get();
+    const { activityList, signUpRecords } = get();
     const actIndex = activityList.findIndex(a => a.id === activityId);
-    if (actIndex === -1) return false;
+    if (actIndex === -1) return { success: false, absentCount: 0 };
+    const activity = activityList[actIndex];
+
+    const checkedInIds = new Set(
+      signUpRecords.filter(r => r.activityId === activityId && r.checkedIn).map(r => r.userId)
+    );
+    const absentCount = activity.signedParticipants.filter(id => !checkedInIds.has(id)).length;
+
     const newActivityList = [...activityList];
     newActivityList[actIndex] = { ...activityList[actIndex], reminded: true };
     set({ activityList: newActivityList });
     saveToStorage({ ...get(), activityList: newActivityList });
-    console.log('[Store] Send reminder:', activityId);
-    return true;
+    console.log('[Store] Send reminder:', activityId, 'absent:', absentCount);
+    return { success: true, absentCount };
   },
 
   getActivityById: (activityId) => {
@@ -462,6 +547,34 @@ export const useAppStore = create<AppState>((set, get) => ({
     const absentIds = activity.signedParticipants.filter(uid => !checkedInUserIds.has(uid));
 
     return memberList.filter(m => absentIds.includes(m.id));
+  },
+
+  getRoster: (activityId) => {
+    const { activityList, signUpRecords, memberList } = get();
+    const activity = activityList.find(a => a.id === activityId);
+    if (!activity) return [];
+
+    return activity.signedParticipants.map(userId => {
+      const member = memberList.find(m => m.id === userId);
+      const record = signUpRecords.find(r => r.activityId === activityId && r.userId === userId);
+      return {
+        userId,
+        name: member?.name || '未知成员',
+        avatar: member?.avatar || '',
+        department: member?.department || '',
+        position: member?.position || '',
+        positionId: record?.positionId,
+        positionName: record?.positionName,
+        checkedIn: record?.checkedIn || false,
+        checkInTime: record?.checkInTime,
+        signedAt: record?.signedAt || activity.createdAt,
+      };
+    });
+  },
+
+  getCheckInRecords: (activityId) => {
+    const roster = get().getRoster(activityId);
+    return roster.filter(m => m.checkedIn);
   },
 
   getUserSignUpRecords: (userId) => {

@@ -39,4 +39,5 @@ export interface SignUpRecord {
   positionName?: string;
   signedAt: string;
   checkedIn: boolean;
+  checkInTime?: string;
 }
