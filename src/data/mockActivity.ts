@@ -88,10 +88,10 @@ export const mockActivityList: Activity[] = [
 ];
 
 export const mockSignUpRecords: SignUpRecord[] = [
-  { id: 'sr-1', activityId: 'act-1', activityTitle: '校园文化节志愿者招募', positionId: 'pos-1', positionName: '场地布置组', signedAt: '2026-06-11T10:30:00', checkedIn: false },
-  { id: 'sr-2', activityId: 'act-2', activityTitle: '社团团建活动', positionId: 'pos-5', positionName: '食材采购', signedAt: '2026-06-13T09:15:00', checkedIn: false },
-  { id: 'sr-3', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T14:20:00', checkedIn: true },
-  { id: 'sr-4', activityId: 'act-4', activityTitle: '校园志愿献血活动', positionId: 'pos-6', positionName: '现场引导', signedAt: '2026-06-12T16:45:00', checkedIn: false },
+  { id: 'sr-1', userId: 'user-1', activityId: 'act-1', activityTitle: '校园文化节志愿者招募', positionId: 'pos-1', positionName: '场地布置组', signedAt: '2026-06-11T10:30:00', checkedIn: false },
+  { id: 'sr-2', userId: 'user-1', activityId: 'act-2', activityTitle: '社团团建活动', positionId: 'pos-5', positionName: '食材采购', signedAt: '2026-06-13T09:15:00', checkedIn: false },
+  { id: 'sr-3', userId: 'user-1', activityId: 'act-3', activityTitle: '技术分享会：前端开发入门', signedAt: '2026-06-14T14:20:00', checkedIn: true },
+  { id: 'sr-4', userId: 'user-1', activityId: 'act-4', activityTitle: '校园志愿献血活动', positionId: 'pos-6', positionName: '现场引导', signedAt: '2026-06-12T16:45:00', checkedIn: false },
 ];
 
 export const getActivityStatusLabel = (status: string): string => {

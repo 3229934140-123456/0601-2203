@@ -5,7 +5,7 @@ import { mockMemberList, mockCurrentUser, mockContributionRecords, mockThankReco
 import { mockMutualAidList } from '@/data/mockMutualAid';
 import { mockActivityList, mockSignUpRecords } from '@/data/mockActivity';
 
-const STORAGE_KEY = 'club_app_store_v1';
+const STORAGE_KEY = 'club_app_store_v2';
 
 interface PersistedState {
   mutualAidList: MutualAid[];
@@ -70,13 +70,15 @@ interface AppState {
   getAidById: (aidId: string) => MutualAid | undefined;
 
   addActivity: (activity: Omit<Activity, 'id' | 'createdAt' | 'status' | 'signedParticipants' | 'absentMembers' | 'reminded' | 'organizerId' | 'organizerName'>) => Activity;
-  signUpActivity: (activityId: string, positionId: string | null, userId: string, userName: string) => boolean;
+  signUpActivity: (activityId: string, positionId: string | null, userId: string, userName: string) => { success: boolean; message: string };
   cancelSignUp: (activityId: string, userId: string) => boolean;
   checkIn: (activityId: string, userId: string, code: string) => { success: boolean; message: string };
+  hasCheckedIn: (activityId: string, userId: string) => boolean;
   sendReminder: (activityId: string) => boolean;
   getActivityById: (activityId: string) => Activity | undefined;
   getAbsentMembers: (activityId: string) => Member[];
   getUserSignUpRecords: (userId: string) => SignUpRecord[];
+  getUserSignUpCount: (userId: string) => number;
 
   setCurrentUser: (user: Member) => void;
   resetStore: () => void;
@@ -225,16 +227,35 @@ export const useAppStore = create<AppState>((set, get) => ({
   signUpActivity: (activityId, positionId, userId, userName) => {
     const { activityList, signUpRecords } = get();
     const actIndex = activityList.findIndex(a => a.id === activityId);
-    if (actIndex === -1) return false;
+    if (actIndex === -1) return { success: false, message: '活动不存在' };
     const activity = activityList[actIndex];
-    if (activity.signedParticipants.includes(userId)) return false;
-    if (activity.signedParticipants.length >= activity.maxParticipants) return false;
+
+    if (activity.signedParticipants.includes(userId)) {
+      return { success: false, message: '您已报名此活动' };
+    }
+    if (activity.signedParticipants.length >= activity.maxParticipants) {
+      return { success: false, message: '活动人数已满' };
+    }
+
+    let targetPosition: typeof activity.positions[number] | undefined;
+    if (positionId) {
+      targetPosition = activity.positions.find(p => p.id === positionId);
+      if (!targetPosition) {
+        return { success: false, message: '岗位不存在' };
+      }
+      if (targetPosition.signedCount >= targetPosition.requiredCount) {
+        return { success: false, message: `岗位「${targetPosition.name}」人数已满` };
+      }
+    }
 
     const newActivityList = [...activityList];
     const updatedPositions = activity.positions.map(p => {
       if (positionId && p.id === positionId) {
-        if (p.signedCount >= p.requiredCount) return p;
-        return { ...p, signedCount: p.signedCount + 1, signedMembers: [...p.signedMembers, userId] };
+        return {
+          ...p,
+          signedCount: p.signedCount + 1,
+          signedMembers: [...p.signedMembers, userId],
+        };
       }
       return p;
     });
@@ -244,13 +265,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       positions: updatedPositions,
     };
 
-    const position = positionId ? activity.positions.find(p => p.id === positionId) : null;
     const newRecord: SignUpRecord = {
-      id: `sr-${Date.now()}`,
+      id: `sr-${Date.now()}-${userId}`,
+      userId,
       activityId,
       activityTitle: activity.title,
       positionId: positionId || undefined,
-      positionName: position?.name,
+      positionName: targetPosition?.name,
       signedAt: new Date().toISOString(),
       checkedIn: false,
     };
@@ -258,8 +279,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     set({ activityList: newActivityList, signUpRecords: newRecords });
     saveToStorage({ ...get(), activityList: newActivityList, signUpRecords: newRecords });
-    console.log('[Store] Sign up activity:', activityId, 'user:', userName);
-    return true;
+    console.log('[Store] Sign up activity:', activityId, 'user:', userName, 'position:', positionId);
+    return { success: true, message: '报名成功' };
   },
 
   cancelSignUp: (activityId, userId) => {
@@ -269,9 +290,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     const activity = activityList[actIndex];
     if (!activity.signedParticipants.includes(userId)) return false;
 
+    const myRecord = signUpRecords.find(r => r.activityId === activityId && r.userId === userId);
+    const myPositionId = myRecord?.positionId;
+
     const newActivityList = [...activityList];
     const updatedPositions = activity.positions.map(p => {
-      if (p.signedMembers.includes(userId)) {
+      if (myPositionId && p.id === myPositionId && p.signedMembers.includes(userId)) {
         return {
           ...p,
           signedCount: Math.max(0, p.signedCount - 1),
@@ -285,7 +309,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       signedParticipants: activity.signedParticipants.filter(id => id !== userId),
       positions: updatedPositions,
     };
-    const newRecords = signUpRecords.filter(r => !(r.activityId === activityId && !r.checkedIn));
+
+    const newRecords = signUpRecords.filter(r => !(r.activityId === activityId && r.userId === userId));
 
     set({ activityList: newActivityList, signUpRecords: newRecords });
     saveToStorage({ ...get(), activityList: newActivityList, signUpRecords: newRecords });
@@ -302,13 +327,23 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (activity.checkInCode !== code) return { success: false, message: '签到码错误' };
     if (!activity.signedParticipants.includes(userId)) return { success: false, message: '您未报名此活动' };
 
+    const alreadyChecked = signUpRecords.some(
+      r => r.activityId === activityId && r.userId === userId && r.checkedIn
+    );
+    if (alreadyChecked) {
+      return { success: false, message: '您已签到，请勿重复签到' };
+    }
+
     const newActivityList = [...activityList];
     newActivityList[actIndex] = {
       ...activity,
       absentMembers: activity.absentMembers.filter(id => id !== userId),
     };
+
     const newRecords = signUpRecords.map(r => {
-      if (r.activityId === activityId) return { ...r, checkedIn: true };
+      if (r.activityId === activityId && r.userId === userId) {
+        return { ...r, checkedIn: true };
+      }
       return r;
     });
 
@@ -316,6 +351,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     saveToStorage({ ...get(), activityList: newActivityList, signUpRecords: newRecords });
     console.log('[Store] Check in success:', activityId, 'user:', userId);
     return { success: true, message: '签到成功' };
+  },
+
+  hasCheckedIn: (activityId, userId) => {
+    return get().signUpRecords.some(
+      r => r.activityId === activityId && r.userId === userId && r.checkedIn
+    );
   },
 
   sendReminder: (activityId) => {
@@ -338,22 +379,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { activityList, memberList, signUpRecords } = get();
     const activity = activityList.find(a => a.id === activityId);
     if (!activity) return [];
-    const checkedSet = new Set(
+
+    const checkedInUserIds = new Set(
       signUpRecords
         .filter(r => r.activityId === activityId && r.checkedIn)
-        .map(() => '')
+        .map(r => r.userId)
     );
-    signUpRecords.forEach(r => {
-      if (r.activityId === activityId && r.checkedIn) {
-        activity.signedParticipants.forEach(uid => checkedSet.add(uid));
-      }
-    });
-    const absentIds = activity.signedParticipants.filter(uid => !checkedSet.has(uid));
+
+    const absentIds = activity.signedParticipants.filter(uid => !checkedInUserIds.has(uid));
+
     return memberList.filter(m => absentIds.includes(m.id));
   },
 
-  getUserSignUpRecords: (_userId) => {
-    return get().signUpRecords;
+  getUserSignUpRecords: (userId) => {
+    return get().signUpRecords.filter(r => r.userId === userId);
+  },
+
+  getUserSignUpCount: (userId) => {
+    return get().signUpRecords.filter(r => r.userId === userId).length;
   },
 
   setCurrentUser: (user) => set({ currentUser: user }),

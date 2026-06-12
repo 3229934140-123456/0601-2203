@@ -17,7 +17,7 @@ const STATUS_TABS = [
 const ActivitiesPage: React.FC = () => {
   const currentUser = useAppStore(s => s.currentUser);
   const activityList = useAppStore(s => s.activityList);
-  const signUpRecords = useAppStore(s => s.signUpRecords);
+  const getUserSignUpCount = useAppStore(s => s.getUserSignUpCount);
   const [activeStatus, setActiveStatus] = useState('all');
 
   useDidShow(() => {
@@ -25,18 +25,14 @@ const ActivitiesPage: React.FC = () => {
   });
 
   const stats = useMemo(() => {
-    const mySignUpCount = signUpRecords.filter(r => {
-      const act = activityList.find(a => a.id === r.activityId);
-      return act && act.signedParticipants.includes(currentUser.id);
-    }).length;
-    const myCount = activityList.filter(a => a.signedParticipants.includes(currentUser.id)).length;
+    const mySignup = getUserSignUpCount(currentUser.id);
     return {
       upcoming: activityList.filter(a => a.status === 'upcoming').length,
       ongoing: activityList.filter(a => a.status === 'ongoing').length,
       ended: activityList.filter(a => a.status === 'ended').length,
-      mySignup: myCount > 0 ? myCount : mySignUpCount,
+      mySignup,
     };
-  }, [activityList, signUpRecords, currentUser.id]);
+  }, [activityList, getUserSignUpCount, currentUser.id]);
 
   const filteredList = useMemo(() => {
     if (activeStatus === 'all') return activityList;

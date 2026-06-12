@@ -32,6 +32,7 @@ export interface Activity {
 
 export interface SignUpRecord {
   id: string;
+  userId: string;
   activityId: string;
   activityTitle: string;
   positionId?: string;

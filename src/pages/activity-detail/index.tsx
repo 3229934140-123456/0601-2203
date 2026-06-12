@@ -12,8 +12,8 @@ const ActivityDetailPage: React.FC = () => {
   const activityId = router.params.id;
   const currentUser = useAppStore(s => s.currentUser);
   const activityList = useAppStore(s => s.activityList);
-  const memberList = useAppStore(s => s.memberList);
-  const signUpRecords = useAppStore(s => s.signUpRecords);
+  const hasCheckedIn = useAppStore(s => s.hasCheckedIn);
+  const getAbsentMembers = useAppStore(s => s.getAbsentMembers);
   const signUpActivity = useAppStore(s => s.signUpActivity);
   const cancelSignUp = useAppStore(s => s.cancelSignUp);
   const checkIn = useAppStore(s => s.checkIn);
@@ -28,6 +28,7 @@ const ActivityDetailPage: React.FC = () => {
 
   useDidShow(() => {
     console.log('[ActivityDetail] Page did show, activityId:', activityId);
+    setSelectedPosition(null);
   });
 
   const getStatusClass = () => {
@@ -49,23 +50,8 @@ const ActivityDetailPage: React.FC = () => {
   };
 
   const isSignedUp = activity?.signedParticipants.includes(currentUser.id) || false;
-  const isCheckedIn = useMemo(() => {
-    return signUpRecords.some(r => r.activityId === activityId && r.checkedIn && activity?.signedParticipants.includes(currentUser.id));
-  }, [signUpRecords, activityId, activity, currentUser.id]);
-
-  const absentMembers = useMemo(() => {
-    if (!activity) return [];
-    const checkedInUserIds = signUpRecords
-      .filter(r => r.activityId === activityId && r.checkedIn)
-      .map(r => {
-        const act = activityList.find(a => a.id === r.activityId);
-        return act?.signedParticipants || [];
-      })
-      .flat();
-    const checkedSet = new Set(checkedInUserIds);
-    const absentIds = activity.signedParticipants.filter(uid => !checkedSet.has(uid));
-    return memberList.filter(m => absentIds.includes(m.id));
-  }, [activity, activityId, signUpRecords, activityList, memberList]);
+  const isCheckedIn = activity ? hasCheckedIn(activity.id, currentUser.id) : false;
+  const absentMembers = activity ? getAbsentMembers(activity.id) : [];
 
   const handleSignUp = () => {
     if (!activity) return;
@@ -99,30 +85,18 @@ const ActivityDetailPage: React.FC = () => {
       return;
     }
 
-    if (activity.signedParticipants.length >= activity.maxParticipants) {
-      Taro.showToast({ title: '活动人数已满', icon: 'none' });
-      return;
-    }
-
-    const position = selectedPosition ? activity.positions.find(p => p.id === selectedPosition) : null;
-    if (position && position.signedCount >= position.requiredCount) {
-      Taro.showToast({ title: '该岗位人数已满', icon: 'none' });
-      return;
-    }
-
     Taro.showModal({
       title: '确认报名',
-      content: position
-        ? `确定要报名"${position.name}"岗位吗？`
+      content: selectedPosition
+        ? `确定要报名"${activity.positions.find(p => p.id === selectedPosition)?.name}"岗位吗？`
         : '确定要报名参加这个活动吗？',
       success: (res) => {
         if (res.confirm && activity) {
-          const ok = signUpActivity(activity.id, selectedPosition, currentUser.id, currentUser.name);
-          if (ok) {
-            Taro.showToast({ title: '报名成功', icon: 'success' });
-          } else {
-            Taro.showToast({ title: '报名失败', icon: 'none' });
+          const result = signUpActivity(activity.id, selectedPosition, currentUser.id, currentUser.name);
+          if (result.success) {
+            setSelectedPosition(null);
           }
+          Taro.showToast({ title: result.message, icon: result.success ? 'success' : 'none' });
         }
       },
     });

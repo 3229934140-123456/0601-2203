@@ -9,9 +9,12 @@ import { formatDateTime, formatRelativeTime } from '@/utils/format';
 
 const ProfilePage: React.FC = () => {
   const currentUser = useAppStore(s => s.currentUser);
-  const signUpRecords = useAppStore(s => s.signUpRecords);
+  const getUserSignUpRecords = useAppStore(s => s.getUserSignUpRecords);
+  const getUserSignUpCount = useAppStore(s => s.getUserSignUpCount);
   const contributionRecords = useAppStore(s => s.contributionRecords);
   const thankRecords = useAppStore(s => s.thankRecords);
+  const signUpRecords = getUserSignUpRecords(currentUser.id);
+  const activityCount = getUserSignUpCount(currentUser.id);
 
 
   useDidShow(() => {
@@ -73,7 +76,7 @@ const ProfilePage: React.FC = () => {
       <View className={styles.statsGrid}>
         <StatCard value={currentUser.contributionCount} label="贡献次数" />
         <StatCard value={currentUser.thankedCount} label="被感谢" variant="warm" />
-        <StatCard value={signUpRecords.length} label="参与活动" variant="success" />
+        <StatCard value={activityCount} label="参与活动" variant="success" />
       </View>
 
       <View className={styles.section}>
