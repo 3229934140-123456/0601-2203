@@ -1,0 +1,167 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: $spacing-xl;
+}
+
+.banner {
+  height: 280rpx;
+  margin-bottom: $spacing-lg;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $gradient-primary;
+  position: relative;
+}
+
+.bannerContent {
+  padding: $spacing-xl;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.bannerTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-sm;
+}
+
+.bannerSubtitle {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.viewMore {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-normal;
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+}
+
+.quickItem {
+  @include card-base;
+  padding: $spacing-lg $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  @include clickable;
+}
+
+.quickIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-sm;
+  font-size: 36rpx;
+}
+
+.quickIconBlue {
+  background-color: $color-tag-borrow;
+}
+
+.quickIconOrange {
+  background-color: $color-tag-carpool;
+}
+
+.quickIconGreen {
+  background-color: $color-tag-material;
+}
+
+.quickIconPink {
+  background-color: $color-tag-skill;
+}
+
+.quickLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+}
+
+.todoList {
+  @include card-base;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+}
+
+.todoTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.todoIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-md;
+  background-color: $color-tag-carpool;
+  color: $color-warning;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.todoContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.todoText {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.todoMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}

@@ -1,0 +1,29 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  padding: $spacing-sm 0;
+  overflow-x: auto;
+  @include scroll-x-container;
+}
+
+.tabItem {
+  @include scroll-x-item(auto);
+  @include tag-base;
+  padding: 12rpx 32rpx;
+  background-color: $color-bg-card;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  border: 2rpx solid transparent;
+  @include clickable;
+  margin-right: $spacing-sm;
+}
+
+.tabActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+  border-color: $color-primary;
+  font-weight: $font-weight-medium;
+}

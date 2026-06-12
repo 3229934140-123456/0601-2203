@@ -1,0 +1,102 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: 160rpx;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.searchBar {
+  flex: 1;
+  @include card-base;
+  padding: $spacing-md $spacing-lg;
+  display: flex;
+  align-items: center;
+  margin-right: $spacing-md;
+}
+
+.searchIcon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.publishBtn {
+  @include button-reset;
+  height: $button-height-md;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  padding: 0 $spacing-lg;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  @include clickable;
+  flex-shrink: 0;
+}
+
+.filterBar {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  overflow-x: auto;
+  @include scroll-x-container;
+}
+
+.filterItem {
+  @include scroll-x-item(auto);
+  @include tag-base;
+  padding: 12rpx 32rpx;
+  background-color: $color-bg-card;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  border: 2rpx solid transparent;
+  @include clickable;
+  margin-right: $spacing-sm;
+}
+
+.filterActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+  border-color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.listContent {
+  min-height: 400rpx;
+}
+
+.fab {
+  position: fixed;
+  right: $spacing-lg;
+  bottom: 140rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: $radius-round;
+  background: $gradient-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-float;
+  z-index: 100;
+  @include clickable;
+}
+
+.fabIcon {
+  font-size: 48rpx;
+  color: $color-text-white;
+}

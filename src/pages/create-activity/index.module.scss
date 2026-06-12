@@ -1,0 +1,187 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: 160rpx;
+}
+
+.formSection {
+  @include card-base;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.formItem {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.label {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.required {
+  color: $color-error;
+  margin-right: $spacing-xs;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  border: 2rpx solid $color-border;
+  box-sizing: border-box;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: $spacing-md $spacing-lg;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  border: 2rpx solid $color-border;
+  box-sizing: border-box;
+  line-height: $line-height-normal;
+}
+
+.inputRow {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.inputGroup {
+  flex: 1;
+}
+
+.positionItem {
+  @include card-base;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  border: 2rpx solid $color-border;
+}
+
+.positionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.positionName {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.deleteBtn {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-error;
+  font-size: 32rpx;
+  @include clickable;
+}
+
+.addPositionBtn {
+  @include button-reset;
+  width: 100%;
+  height: $button-height-md;
+  background-color: $color-bg-page;
+  border: 2rpx dashed $color-border;
+  border-radius: $radius-md;
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  @include clickable;
+  margin-top: $spacing-sm;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+}
+
+.switchLabel {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.switch {
+  width: 88rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  background-color: $color-border;
+  position: relative;
+  @include clickable;
+  transition: background-color $transition-base;
+}
+
+.switchActive {
+  background-color: $color-primary;
+}
+
+.switchThumb {
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  background-color: $color-text-white;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+  transition: transform $transition-base;
+}
+
+.switchThumbActive {
+  transform: translateX(40rpx);
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-lg $page-padding;
+  background-color: $color-bg-card;
+  box-shadow: $shadow-float;
+  @include safe-bottom;
+}
+
+.submitBtn {
+  @include button-reset;
+  height: $button-height-lg;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  width: 100%;
+  @include clickable;
+}
+
+.submitBtnDisabled {
+  background: $color-text-disabled;
+  opacity: 0.6;
+}

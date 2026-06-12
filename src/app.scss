@@ -1,0 +1,139 @@
+@use '@/styles/compat.scss';
+@use '@/styles/variables.scss' as *;
+
+// 全局样式
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB',
+    sans-serif;
+  font-size: $font-size-md;
+  line-height: $line-height-normal;
+  color: $color-text-primary;
+  background: linear-gradient(180deg, #eff6ff 0%, $color-bg-page 100%);
+  min-height: 100vh;
+}
+
+// 页面容器
+.pageContainer {
+  padding: 0 $page-padding;
+  padding-top: $spacing-lg;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+// 通用 Flex
+.flexRow {
+  display: flex;
+  flex-direction: row;
+}
+
+.flexCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.flexCenter {
+  @include flex-center;
+}
+
+.flex1 {
+  flex: 1;
+}
+
+// 文本截断
+.textEllipsis {
+  @include text-ellipsis;
+}
+
+// 通用间距
+.mtSm { margin-top: $spacing-sm; }
+.mtMd { margin-top: $spacing-md; }
+.mtLg { margin-top: $spacing-lg; }
+.mtXl { margin-top: $spacing-xl; }
+
+.mbSm { margin-bottom: $spacing-sm; }
+.mbMd { margin-bottom: $spacing-md; }
+.mbLg { margin-bottom: $spacing-lg; }
+.mbXl { margin-bottom: $spacing-xl; }
+
+// 通用标签样式
+.tag {
+  @include tag-base;
+}
+
+.tagBorrow {
+  background-color: $color-tag-borrow;
+  color: $color-primary-dark;
+}
+
+.tagCarpool {
+  background-color: $color-tag-carpool;
+  color: #b45309;
+}
+
+.tagMaterial {
+  background-color: $color-tag-material;
+  color: #047857;
+}
+
+.tagSkill {
+  background-color: $color-tag-skill;
+  color: #be185d;
+}
+
+// 按钮基础样式
+.btnPrimary {
+  @include button-reset;
+  height: $button-height-md;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  padding: 0 $spacing-xl;
+  min-width: 160rpx;
+  @include clickable;
+}
+
+.btnOutline {
+  @include button-reset;
+  height: $button-height-md;
+  background: transparent;
+  color: $color-primary;
+  border: 2rpx solid $color-primary;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  padding: 0 $spacing-xl;
+  min-width: 160rpx;
+  @include clickable;
+}
+
+.btnSecondary {
+  @include button-reset;
+  height: $button-height-md;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  padding: 0 $spacing-xl;
+  min-width: 160rpx;
+  @include clickable;
+}
+
+// 空状态
+.emptyState {
+  padding: 120rpx 0;
+  @include flex-center;
+  flex-direction: column;
+}
+
+.emptyIcon {
+  width: 160rpx;
+  height: 160rpx;
+  margin-bottom: $spacing-lg;
+  opacity: 0.3;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}

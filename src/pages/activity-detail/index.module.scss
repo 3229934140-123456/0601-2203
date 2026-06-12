@@ -1,0 +1,317 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: 160rpx;
+}
+
+.detailCard {
+  @include card-base;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.header {
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  line-height: $line-height-tight;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.statusBadge {
+  @include tag-base;
+}
+
+.statusUpcoming {
+  background-color: $color-tag-borrow;
+  color: $color-primary;
+}
+
+.statusOngoing {
+  background-color: $color-tag-material;
+  color: $color-success;
+}
+
+.statusEnded {
+  background-color: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.metaList {
+  margin: $spacing-md 0;
+  padding: $spacing-md 0;
+  border-top: 1rpx solid $color-divider;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.metaItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-sm 0;
+}
+
+.metaIcon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+  margin-top: 2rpx;
+}
+
+.metaLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.metaValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  flex: 1;
+  line-height: $line-height-normal;
+}
+
+.description {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-md;
+}
+
+.progress {
+  margin-bottom: $spacing-md;
+}
+
+.progressBar {
+  width: 100%;
+  height: 16rpx;
+  background-color: $color-bg-hover;
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-bottom: $spacing-sm;
+}
+
+.progressFill {
+  height: 100%;
+  background: $gradient-primary;
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.progressText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-align: right;
+}
+
+.section {
+  @include card-base;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.positionCard {
+  @include card-base;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  border: 2rpx solid $color-border;
+  @include clickable;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.positionActive {
+  border-color: $color-primary;
+  background-color: $color-tag-borrow;
+}
+
+.positionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.positionName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.positionProgress {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.positionDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+}
+
+.positionProgressBar {
+  height: 8rpx;
+  background-color: $color-bg-hover;
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-top: $spacing-sm;
+}
+
+.positionProgressFill {
+  height: 100%;
+  background: $gradient-primary;
+  border-radius: $radius-round;
+}
+
+.checkInCard {
+  background: $gradient-warm;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  text-align: center;
+  margin-bottom: $spacing-md;
+  color: $color-text-white;
+}
+
+.checkInTitle {
+  font-size: $font-size-md;
+  margin-bottom: $spacing-md;
+  opacity: 0.9;
+}
+
+.checkInCode {
+  font-size: 64rpx;
+  font-weight: $font-weight-bold;
+  letter-spacing: 8rpx;
+  margin-bottom: $spacing-md;
+}
+
+.checkInTime {
+  font-size: $font-size-sm;
+  opacity: 0.8;
+}
+
+.absentList {
+  margin-bottom: $spacing-md;
+}
+
+.absentItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.absentAvatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+}
+
+.absentName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.organizer {
+  display: flex;
+  align-items: center;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+  margin-top: $spacing-md;
+}
+
+.organizerAvatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+}
+
+.organizerInfo {
+  flex: 1;
+}
+
+.organizerName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.organizerRole {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-lg $page-padding;
+  background-color: $color-bg-card;
+  box-shadow: $shadow-float;
+  display: flex;
+  gap: $spacing-md;
+  @include safe-bottom;
+}
+
+.footerBtn {
+  flex: 1;
+  @include button-reset;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  @include clickable;
+}
+
+.btnPrimary {
+  background: $gradient-primary;
+  color: $color-text-white;
+}
+
+.btnOutline {
+  background: transparent;
+  color: $color-primary;
+  border: 2rpx solid $color-primary;
+}
+
+.btnSecondary {
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.btnDisabled {
+  background: $color-text-disabled;
+  color: $color-text-white;
+  opacity: 0.6;
+}

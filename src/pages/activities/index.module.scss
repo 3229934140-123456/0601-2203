@@ -1,0 +1,102 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: 160rpx;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.createBtn {
+  @include button-reset;
+  height: $button-height-md;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  padding: 0 $spacing-lg;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  @include clickable;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.countBadge {
+  @include tag-base;
+  background-color: $color-primary;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.filterTabs {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  overflow-x: auto;
+  @include scroll-x-container;
+}
+
+.tabItem {
+  @include scroll-x-item(auto);
+  @include tag-base;
+  padding: 12rpx 32rpx;
+  background-color: $color-bg-card;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  border: 2rpx solid transparent;
+  @include clickable;
+  margin-right: $spacing-sm;
+}
+
+.tabActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+  border-color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.fab {
+  position: fixed;
+  right: $spacing-lg;
+  bottom: 140rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: $radius-round;
+  background: $gradient-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-float;
+  z-index: 100;
+  @include clickable;
+}
+
+.fabIcon {
+  font-size: 48rpx;
+  color: $color-text-white;
+}

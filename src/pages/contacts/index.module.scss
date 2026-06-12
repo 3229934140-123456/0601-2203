@@ -1,0 +1,91 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: $spacing-xl;
+}
+
+.searchBar {
+  @include card-base;
+  padding: $spacing-md $spacing-lg;
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.searchIcon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.filterSection {
+  margin-bottom: $spacing-md;
+}
+
+.filterLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.filterRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  overflow-x: auto;
+  @include scroll-x-container;
+}
+
+.filterChip {
+  @include scroll-x-item(auto);
+  @include tag-base;
+  padding: 10rpx 24rpx;
+  background-color: $color-bg-card;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  border: 2rpx solid $color-border;
+  @include clickable;
+  margin-right: $spacing-sm;
+}
+
+.filterChipActive {
+  background-color: $color-primary;
+  color: $color-text-white;
+  border-color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+  padding-top: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.countBadge {
+  @include tag-base;
+  background-color: $color-primary;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.listContainer {
+  min-height: 400rpx;
+}

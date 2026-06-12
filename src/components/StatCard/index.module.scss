@@ -1,0 +1,29 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  @include card-base;
+  padding: $spacing-lg;
+  text-align: center;
+  @include clickable;
+}
+
+.value {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-bottom: $spacing-xs;
+  line-height: 1.2;
+}
+
+.label {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.warm .value {
+  color: $color-warning;
+}
+
+.success .value {
+  color: $color-success;
+}

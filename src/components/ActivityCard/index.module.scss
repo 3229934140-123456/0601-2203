@@ -1,0 +1,129 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  @include card-base;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  @include clickable;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  flex: 1;
+  line-height: $line-height-tight;
+}
+
+.statusBadge {
+  @include tag-base;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.statusUpcoming {
+  background-color: $color-tag-borrow;
+  color: $color-primary;
+}
+
+.statusOngoing {
+  background-color: $color-tag-material;
+  color: $color-success;
+}
+
+.statusEnded {
+  background-color: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.metaIcon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: $spacing-xs;
+  flex-shrink: 0;
+}
+
+.description {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  @include text-ellipsis-multi(2);
+  margin-bottom: $spacing-md;
+}
+
+.progress {
+  margin-bottom: $spacing-md;
+}
+
+.progressBar {
+  width: 100%;
+  height: 12rpx;
+  background-color: $color-bg-hover;
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-bottom: $spacing-sm;
+}
+
+.progressFill {
+  height: 100%;
+  background: $gradient-primary;
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.progressText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: right;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.organizer {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+}
+
+.organizerName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.tags {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.tag {
+  @include tag-base;
+  background-color: $color-bg-hover;
+  color: $color-text-secondary;
+}

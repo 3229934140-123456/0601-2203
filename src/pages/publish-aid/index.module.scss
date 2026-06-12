@@ -1,0 +1,132 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: 160rpx;
+}
+
+.formSection {
+  @include card-base;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.typeItem {
+  @include card-base;
+  padding: $spacing-md $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2rpx solid transparent;
+  @include clickable;
+}
+
+.typeItemActive {
+  border-color: $color-primary;
+  background-color: $color-tag-borrow;
+}
+
+.typeIcon {
+  font-size: 40rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.typeLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.formItem {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.label {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.required {
+  color: $color-error;
+  margin-right: $spacing-xs;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  border: 2rpx solid $color-border;
+  box-sizing: border-box;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: $spacing-md $spacing-lg;
+  background-color: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  border: 2rpx solid $color-border;
+  box-sizing: border-box;
+  line-height: $line-height-normal;
+}
+
+.inputRow {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.inputGroup {
+  flex: 1;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-lg $page-padding;
+  background-color: $color-bg-card;
+  box-shadow: $shadow-float;
+  @include safe-bottom;
+}
+
+.submitBtn {
+  @include button-reset;
+  height: $button-height-lg;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  width: 100%;
+  @include clickable;
+}
+
+.submitBtnDisabled {
+  background: $color-text-disabled;
+  opacity: 0.6;
+}

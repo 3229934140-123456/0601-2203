@@ -1,0 +1,303 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  padding-bottom: 160rpx;
+}
+
+.detailCard {
+  @include card-base;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-bottom: $spacing-sm;
+}
+
+.typeTag {
+  @include tag-base;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  flex: 1;
+}
+
+.statusBadge {
+  @include tag-base;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.statusOpen {
+  background-color: $color-tag-material;
+  color: $color-success;
+}
+
+.statusClaimed {
+  background-color: $color-tag-carpool;
+  color: $color-warning;
+}
+
+.statusCompleted {
+  background-color: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.publisher {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-top: 1rpx solid $color-divider;
+  margin-top: $spacing-md;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+}
+
+.publisherInfo {
+  flex: 1;
+}
+
+.publisherName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.publishTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.metaList {
+  margin-bottom: $spacing-md;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm 0;
+}
+
+.metaIcon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.metaLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.metaValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  flex: 1;
+}
+
+.description {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  padding: $spacing-md 0;
+  border-top: 1rpx solid $color-divider;
+  border-bottom: 1rpx solid $color-divider;
+  margin: $spacing-md 0;
+}
+
+.actionRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.actionBtn {
+  flex: 1;
+  @include button-reset;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  @include clickable;
+}
+
+.btnPrimary {
+  background: $gradient-primary;
+  color: $color-text-white;
+}
+
+.btnOutline {
+  background: transparent;
+  color: $color-primary;
+  border: 2rpx solid $color-primary;
+}
+
+.btnSecondary {
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.interactionBar {
+  display: flex;
+  justify-content: space-around;
+  padding: $spacing-md 0;
+  border-top: 1rpx solid $color-divider;
+  margin-top: $spacing-md;
+}
+
+.interactionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  @include clickable;
+}
+
+.interactionIcon {
+  font-size: 40rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.interactionText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.interactionActive {
+  color: $color-primary;
+}
+
+.commentsSection {
+  @include card-base;
+  padding: $spacing-lg;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.commentItem {
+  display: flex;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.commentAvatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+  flex-shrink: 0;
+}
+
+.commentContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.commentName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.commentTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.commentText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+}
+
+.commentInputRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-lg;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-lg $page-padding;
+  background-color: $color-bg-card;
+  box-shadow: $shadow-float;
+  display: flex;
+  gap: $spacing-md;
+  @include safe-bottom;
+}
+
+.inputBar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: $color-bg-page;
+  border-radius: $radius-button;
+  padding: 0 $spacing-lg;
+  height: $button-height-lg;
+}
+
+.commentInput {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.sendBtn {
+  @include button-reset;
+  height: $button-height-lg;
+  background: $gradient-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  padding: 0 $spacing-xl;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  @include clickable;
+  flex-shrink: 0;
+}
