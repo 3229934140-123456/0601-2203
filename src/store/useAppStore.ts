@@ -39,17 +39,90 @@ const saveToStorage = (state: PersistedState) => {
   }
 };
 
+const normalizeData = (state: PersistedState): PersistedState => {
+  const { activityList, signUpRecords } = state;
+  const newRecords = [...signUpRecords];
+  let changed = false;
+
+  activityList.forEach(activity => {
+    const activityAbsentSet = new Set(activity.absentMembers);
+
+    activity.signedParticipants.forEach(userId => {
+      const existingRecord = newRecords.find(
+        r => r.activityId === activity.id && r.userId === userId
+      );
+
+      if (!existingRecord) {
+        let positionId: string | undefined;
+        let positionName: string | undefined;
+        activity.positions.forEach(pos => {
+          if (pos.signedMembers.includes(userId)) {
+            positionId = pos.id;
+            positionName = pos.name;
+          }
+        });
+
+        const isAbsent = activityAbsentSet.has(userId);
+        const newRecord: SignUpRecord = {
+          id: `sr-${activity.id}-${userId}`,
+          userId,
+          activityId: activity.id,
+          activityTitle: activity.title,
+          positionId,
+          positionName,
+          signedAt: activity.createdAt,
+          checkedIn: activity.status === 'ended' && !isAbsent,
+        };
+        newRecords.push(newRecord);
+        changed = true;
+        console.log('[Store] Auto-create missing signUp record:', userId, activity.title);
+      } else {
+        if (!existingRecord.userId) {
+          (existingRecord as any).userId = userId;
+          changed = true;
+        }
+        if (existingRecord.checkedIn && activityAbsentSet.has(userId)) {
+          existingRecord.checkedIn = false;
+          changed = true;
+        }
+        if (!existingRecord.checkedIn && activity.status === 'ended' && !activityAbsentSet.has(userId)) {
+          existingRecord.checkedIn = true;
+          changed = true;
+        }
+      }
+    });
+  });
+
+  activityList.forEach(activity => {
+    activity.positions.forEach(position => {
+      const actualCount = position.signedMembers.length;
+      if (position.signedCount !== actualCount) {
+        position.signedCount = actualCount;
+        changed = true;
+      }
+    });
+  });
+
+  if (changed) {
+    console.log('[Store] Data normalized, saving to storage');
+    saveToStorage({ ...state, signUpRecords: newRecords });
+  }
+
+  return {
+    ...state,
+    signUpRecords: newRecords,
+  };
+};
+
 const getInitialState = (): PersistedState => {
   const saved = loadFromStorage();
-  if (saved) {
-    return saved;
-  }
-  return {
+  const rawState = saved || {
     mutualAidList: mockMutualAidList,
     activityList: mockActivityList,
     signUpRecords: mockSignUpRecords,
     memberList: mockMemberList,
   };
+  return normalizeData(rawState);
 };
 
 interface AppState {
