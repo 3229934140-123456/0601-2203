@@ -1,18 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
-import { useUserStore } from '@/store/useUserStore';
-import { mockMutualAidList } from '@/data/mockMutualAid';
-import { mockActivityList, mockSignUpRecords } from '@/data/mockActivity';
+import { useAppStore } from '@/store/useAppStore';
 import AidCard from '@/components/AidCard';
 import ActivityCard from '@/components/ActivityCard';
 import StatCard from '@/components/StatCard';
 
 const HomePage: React.FC = () => {
-  const { currentUser } = useUserStore();
-  const hotAids = mockMutualAidList.slice(0, 3);
-  const upcomingActivities = mockActivityList.filter(a => a.status === 'upcoming').slice(0, 2);
+  const currentUser = useAppStore(s => s.currentUser);
+  const mutualAidList = useAppStore(s => s.mutualAidList);
+  const activityList = useAppStore(s => s.activityList);
+  const signUpRecords = useAppStore(s => s.signUpRecords);
+  const hotAids = useMemo(() => mutualAidList.slice(0, 3), [mutualAidList]);
+  const upcomingActivities = useMemo(
+    () => activityList.filter(a => a.status === 'upcoming').slice(0, 2),
+    [activityList]
+  );
   const myTodos = [
     { id: '1', type: 'activity', text: '校园文化节志愿者培训', meta: '今天 14:00 · 教学楼A101' },
     { id: '2', type: 'aid', text: '记得归还相机给李华同学', meta: '截止日期：6月18日' },
@@ -98,7 +102,7 @@ const HomePage: React.FC = () => {
       </View>
       <View className={styles.statsRow}>
         <StatCard value={currentUser.creditScore} label="信用分" />
-        <StatCard value={mockSignUpRecords.length} label="报名活动" variant="warm" />
+        <StatCard value={signUpRecords.length} label="报名活动" variant="warm" />
         <StatCard value={currentUser.thankedCount} label="被感谢" variant="success" />
       </View>
 

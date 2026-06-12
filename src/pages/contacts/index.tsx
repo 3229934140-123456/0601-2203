@@ -3,16 +3,17 @@ import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { mockMemberList, DEPARTMENT_OPTIONS, GRADE_OPTIONS, INTEREST_OPTIONS } from '@/data/mockMember';
-import { Member, Department, Grade, Interest } from '@/types';
+import { DEPARTMENT_OPTIONS, GRADE_OPTIONS, INTEREST_OPTIONS } from '@/data/mockMember';
+import { Department, Grade, Interest } from '@/types';
+import { useAppStore } from '@/store/useAppStore';
 import MemberCard from '@/components/MemberCard';
 
 const ContactsPage: React.FC = () => {
+  const memberList = useAppStore(s => s.memberList);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [selectedDept, setSelectedDept] = useState<Department | 'all'>('all');
   const [selectedGrade, setSelectedGrade] = useState<Grade | 'all'>('all');
   const [selectedInterest, setSelectedInterest] = useState<Interest | 'all'>('all');
-  const [memberList] = useState<Member[]>(mockMemberList);
 
   useDidShow(() => {
     console.log('[Contacts] Page did show');

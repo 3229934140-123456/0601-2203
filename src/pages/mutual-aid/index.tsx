@@ -3,8 +3,7 @@ import { View, Text, ScrollView, Input } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { mockMutualAidList } from '@/data/mockMutualAid';
-import { MutualAid } from '@/types';
+import { useAppStore } from '@/store/useAppStore';
 import AidCard from '@/components/AidCard';
 
 const TYPE_FILTERS = [
@@ -23,10 +22,11 @@ const STATUS_FILTERS = [
 ];
 
 const MutualAidPage: React.FC = () => {
+  const mutualAidList = useAppStore(s => s.mutualAidList);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [activeType, setActiveType] = useState('all');
   const [activeStatus, setActiveStatus] = useState('all');
-  const aidList = mockMutualAidList;
+  const aidList = mutualAidList;
 
   useDidShow(() => {
     console.log('[MutualAid] Page did show');

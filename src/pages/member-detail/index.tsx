@@ -3,24 +3,22 @@ import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { mockMemberList, mockContributionRecords, mockThankRecords } from '@/data/mockMember';
-import { Member, ContributionRecord } from '@/types';
+import { mockContributionRecords, mockThankRecords } from '@/data/mockMember';
+import { ContributionRecord } from '@/types';
 import { formatDate, formatRelativeTime } from '@/utils/format';
-import { useUserStore } from '@/store/useUserStore';
+import { useAppStore } from '@/store/useAppStore';
 
 const MemberDetailPage: React.FC = () => {
   const router = useRouter();
-  const { currentUser } = useUserStore();
-  const [member, setMember] = useState<Member | null>(null);
+  const memberId = router.params.id;
+  const currentUser = useAppStore(s => s.currentUser);
+  const memberList = useAppStore(s => s.memberList);
   const [activeTab, setActiveTab] = useState<'contribution' | 'thanks'>('contribution');
 
+  const member = memberList.find(m => m.id === memberId) || null;
+
   useDidShow(() => {
-    console.log('[MemberDetail] Page did show');
-    const id = router.params.id;
-    const foundMember = mockMemberList.find(m => m.id === id);
-    if (foundMember) {
-      setMember(foundMember);
-    }
+    console.log('[MemberDetail] Page did show, memberId:', memberId);
   });
 
   const handleCallPhone = () => {
@@ -47,16 +45,17 @@ const MemberDetailPage: React.FC = () => {
   };
 
   const handleSendThank = () => {
-    if (member?.id === currentUser.id) {
+    if (!member) return;
+    if (member.id === currentUser.id) {
       Taro.showToast({ title: '不能感谢自己', icon: 'none' });
       return;
     }
     Taro.showModal({
       title: '发送感谢',
-      content: `确定要向 ${member?.name} 发送感谢吗？`,
+      content: `确定要向 ${member.name} 发送感谢吗？`,
       success: (res) => {
         if (res.confirm) {
-          console.log('[MemberDetail] Send thank to:', member?.id);
+          console.log('[MemberDetail] Send thank to:', member.id);
           Taro.showToast({ title: '感谢已发送', icon: 'success' });
         }
       },

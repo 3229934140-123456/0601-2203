@@ -3,7 +3,8 @@ import { View, Text, Input, Textarea, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { useUserStore } from '@/store/useUserStore';
+import { useAppStore } from '@/store/useAppStore';
+import { VolunteerPosition } from '@/types';
 
 interface PositionForm {
   id: string;
@@ -13,7 +14,8 @@ interface PositionForm {
 }
 
 const CreateActivityPage: React.FC = () => {
-  const { currentUser } = useUserStore();
+  const currentUser = useAppStore(s => s.currentUser);
+  const addActivity = useAppStore(s => s.addActivity);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -68,8 +70,16 @@ const CreateActivityPage: React.FC = () => {
       Taro.showToast({ title: '请输入活动标题', icon: 'none' });
       return;
     }
+    if (formData.title.trim().length < 2) {
+      Taro.showToast({ title: '标题至少2个字符', icon: 'none' });
+      return;
+    }
     if (!formData.description.trim()) {
       Taro.showToast({ title: '请输入活动描述', icon: 'none' });
+      return;
+    }
+    if (formData.description.trim().length < 10) {
+      Taro.showToast({ title: '描述至少10个字符', icon: 'none' });
       return;
     }
     if (!formData.location.trim()) {
@@ -89,26 +99,62 @@ const CreateActivityPage: React.FC = () => {
       return;
     }
 
+    const maxP = parseInt(formData.maxParticipants);
+    if (isNaN(maxP) || maxP < 1 || maxP > 500) {
+      Taro.showToast({ title: '最大人数请输入1-500', icon: 'none' });
+      return;
+    }
+
     const invalidPositions = positions.filter(p => !p.name.trim() || !p.requiredCount);
     if (invalidPositions.length > 0) {
       Taro.showToast({ title: '请完善岗位信息', icon: 'none' });
       return;
     }
 
+    for (const p of positions) {
+      const cnt = parseInt(p.requiredCount);
+      if (isNaN(cnt) || cnt < 1 || cnt > 100) {
+        Taro.showToast({ title: `岗位「${p.name}」人数需1-100`, icon: 'none' });
+        return;
+      }
+    }
+
     if (formData.needCheckIn && !formData.checkInCode.trim()) {
       Taro.showToast({ title: '请输入签到码', icon: 'none' });
       return;
     }
+    if (formData.needCheckIn && formData.checkInCode.trim().length < 4) {
+      Taro.showToast({ title: '签到码至少4位', icon: 'none' });
+      return;
+    }
 
-    console.log('[CreateActivity] Submit form:', { formData, positions });
-    Taro.showModal({
-      title: '创建成功',
-      content: '活动已成功创建，成员可开始报名',
-      showCancel: false,
-      success: () => {
-        Taro.navigateBack();
-      },
+    const activityPositions: VolunteerPosition[] = positions.map(p => ({
+      id: p.id,
+      name: p.name.trim(),
+      description: p.description.trim(),
+      requiredCount: parseInt(p.requiredCount),
+      signedCount: 0,
+      signedMembers: [],
+    }));
+
+    const newActivity = addActivity({
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      location: formData.location.trim(),
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      signUpDeadline: formData.signUpDeadline,
+      maxParticipants: maxP,
+      positions: activityPositions,
+      checkInCode: formData.needCheckIn ? formData.checkInCode.trim() : undefined,
+      checkInStartTime: formData.startTime,
     });
+
+    console.log('[CreateActivity] Submit success:', newActivity.id);
+    Taro.showToast({ title: '创建成功', icon: 'success', duration: 1500 });
+    setTimeout(() => {
+      Taro.navigateBack();
+    }, 1500);
   };
 
   const isFormValid = formData.title.trim() && formData.description.trim() &&
@@ -170,7 +216,7 @@ const CreateActivityPage: React.FC = () => {
             <Input
               className={styles.input}
               type="text"
-              placeholder="选择开始时间"
+              placeholder="如：2026-06-20 14:00"
               value={formData.startTime}
               onInput={(e) => handleInputChange('startTime', e.detail.value)}
             />
@@ -183,7 +229,7 @@ const CreateActivityPage: React.FC = () => {
             <Input
               className={styles.input}
               type="text"
-              placeholder="选择结束时间"
+              placeholder="如：2026-06-20 18:00"
               value={formData.endTime}
               onInput={(e) => handleInputChange('endTime', e.detail.value)}
             />
@@ -198,7 +244,7 @@ const CreateActivityPage: React.FC = () => {
             <Input
               className={styles.input}
               type="text"
-              placeholder="选择截止时间"
+              placeholder="如：2026-06-19 23:59"
               value={formData.signUpDeadline}
               onInput={(e) => handleInputChange('signUpDeadline', e.detail.value)}
             />

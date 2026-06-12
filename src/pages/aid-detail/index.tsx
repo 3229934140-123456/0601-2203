@@ -1,30 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, Image, ScrollView, Input } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { mockMutualAidList } from '@/data/mockMutualAid';
 import { MutualAid } from '@/types';
 import { formatDateTime, formatRelativeTime } from '@/utils/format';
-import { useUserStore } from '@/store/useUserStore';
+import { useAppStore } from '@/store/useAppStore';
 
 const AidDetailPage: React.FC = () => {
   const router = useRouter();
-  const { currentUser } = useUserStore();
-  const [aid, setAid] = useState<MutualAid | null>(null);
+  const aidId = router.params.id;
+  const currentUser = useAppStore(s => s.currentUser);
+  const mutualAidList = useAppStore(s => s.mutualAidList);
+  const claimAid = useAppStore(s => s.claimAid);
+  const completeAid = useAppStore(s => s.completeAid);
+  const addComment = useAppStore(s => s.addComment);
+  const toggleLike = useAppStore(s => s.toggleLike);
+  const toggleCollect = useAppStore(s => s.toggleCollect);
+
   const [commentText, setCommentText] = useState('');
-  const [isLiked, setIsLiked] = useState(false);
-  const [isCollected, setIsCollected] = useState(false);
+
+  const aid = useMemo<MutualAid | undefined>(() => {
+    return mutualAidList.find(a => a.id === aidId);
+  }, [mutualAidList, aidId]);
 
   useDidShow(() => {
-    console.log('[AidDetail] Page did show');
-    const id = router.params.id;
-    const foundAid = mockMutualAidList.find(a => a.id === id);
-    if (foundAid) {
-      setAid(foundAid);
-      setIsLiked(foundAid.isLiked);
-      setIsCollected(foundAid.isCollected);
-    }
+    console.log('[AidDetail] Page did show, aidId:', aidId);
   });
 
   const getTagClass = () => {
@@ -66,11 +67,12 @@ const AidDetailPage: React.FC = () => {
   };
 
   const handleClaim = () => {
-    if (aid?.publisherId === currentUser.id) {
+    if (!aid) return;
+    if (aid.publisherId === currentUser.id) {
       Taro.showToast({ title: '不能认领自己发布的求助', icon: 'none' });
       return;
     }
-    if (aid?.status !== 'open') {
+    if (aid.status !== 'open') {
       Taro.showToast({ title: '该求助已被认领', icon: 'none' });
       return;
     }
@@ -78,16 +80,28 @@ const AidDetailPage: React.FC = () => {
       title: '确认认领',
       content: '确定要认领这条求助吗？认领后请及时联系发布者完成互助。',
       success: (res) => {
-        if (res.confirm) {
-          console.log('[AidDetail] Claim aid:', aid?.id);
-          Taro.showToast({ title: '认领成功', icon: 'success' });
-          if (aid) {
-            setAid({
-              ...aid,
-              status: 'claimed',
-              claimantId: currentUser.id,
-              claimantName: currentUser.name,
-            });
+        if (res.confirm && aid) {
+          const ok = claimAid(aid.id, currentUser.id, currentUser.name);
+          if (ok) {
+            Taro.showToast({ title: '认领成功', icon: 'success' });
+          } else {
+            Taro.showToast({ title: '认领失败', icon: 'none' });
+          }
+        }
+      },
+    });
+  };
+
+  const handleComplete = () => {
+    if (!aid) return;
+    Taro.showModal({
+      title: '确认完成',
+      content: '确定要将这条互助标记为已完成吗？',
+      success: (res) => {
+        if (res.confirm && aid) {
+          const ok = completeAid(aid.id);
+          if (ok) {
+            Taro.showToast({ title: '已确认完成', icon: 'success' });
           }
         }
       },
@@ -95,46 +109,35 @@ const AidDetailPage: React.FC = () => {
   };
 
   const handleLike = () => {
-    setIsLiked(!isLiked);
-    if (aid) {
-      setAid({
-        ...aid,
-        isLiked: !isLiked,
-        likes: isLiked ? aid.likes - 1 : aid.likes + 1,
-      });
-    }
+    if (!aid) return;
+    toggleLike(aid.id, currentUser.id);
   };
 
   const handleCollect = () => {
-    setIsCollected(!isCollected);
+    if (!aid) return;
+    const isCollected = toggleCollect(aid.id, currentUser.id);
     Taro.showToast({
-      title: isCollected ? '已取消收藏' : '收藏成功',
+      title: isCollected ? '收藏成功' : '已取消收藏',
       icon: 'success',
     });
   };
 
   const handleSendComment = () => {
+    if (!aid) return;
     if (!commentText.trim()) {
       Taro.showToast({ title: '请输入评论内容', icon: 'none' });
       return;
     }
-    console.log('[AidDetail] Send comment:', commentText);
-    const newComment = {
-      id: `comment-${Date.now()}`,
+    const ok = addComment(aid.id, {
       userId: currentUser.id,
       userName: currentUser.name,
       userAvatar: currentUser.avatar,
       content: commentText.trim(),
-      createdAt: new Date().toISOString(),
-    };
-    if (aid) {
-      setAid({
-        ...aid,
-        comments: [...aid.comments, newComment],
-      });
+    });
+    if (ok) {
+      setCommentText('');
+      Taro.showToast({ title: '评论成功', icon: 'success' });
     }
-    setCommentText('');
-    Taro.showToast({ title: '评论成功', icon: 'success' });
   };
 
   const handleContact = () => {
@@ -153,7 +156,7 @@ const AidDetailPage: React.FC = () => {
       <View className="pageContainer">
         <View className="emptyState">
           <Text className="emptyIcon">❓</Text>
-          <Text className="emptyText">加载中...</Text>
+          <Text className="emptyText">求助不存在或已删除</Text>
         </View>
       </View>
     );
@@ -210,10 +213,10 @@ const AidDetailPage: React.FC = () => {
 
         <View className={styles.interactionBar}>
           <View
-            className={classnames(styles.interactionItem, isLiked && styles.interactionActive)}
+            className={classnames(styles.interactionItem, aid.isLiked && styles.interactionActive)}
             onClick={handleLike}
           >
-            <Text className={styles.interactionIcon}>{isLiked ? '❤️' : '🤍'}</Text>
+            <Text className={styles.interactionIcon}>{aid.isLiked ? '❤️' : '🤍'}</Text>
             <Text className={styles.interactionText}>{aid.likes} 点赞</Text>
           </View>
           <View className={styles.interactionItem}>
@@ -221,10 +224,10 @@ const AidDetailPage: React.FC = () => {
             <Text className={styles.interactionText}>{aid.comments.length} 评论</Text>
           </View>
           <View
-            className={classnames(styles.interactionItem, isCollected && styles.interactionActive)}
+            className={classnames(styles.interactionItem, aid.isCollected && styles.interactionActive)}
             onClick={handleCollect}
           >
-            <Text className={styles.interactionIcon}>{isCollected ? '⭐' : '☆'}</Text>
+            <Text className={styles.interactionIcon}>{aid.isCollected ? '⭐' : '☆'}</Text>
             <Text className={styles.interactionText}>收藏</Text>
           </View>
         </View>
@@ -236,7 +239,7 @@ const AidDetailPage: React.FC = () => {
             </Text>
           )}
           {aid.status === 'claimed' && aid.claimantId === currentUser.id && (
-            <Text className={classnames(styles.actionBtn, styles.btnPrimary)}>
+            <Text className={classnames(styles.actionBtn, styles.btnPrimary)} onClick={handleComplete}>
               确认完成
             </Text>
           )}

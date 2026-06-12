@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { useUserStore } from '@/store/useUserStore';
-import { mockContributionRecords, mockThankRecords } from '@/data/mockMember';
-import { mockSignUpRecords } from '@/data/mockActivity';
+import { useAppStore } from '@/store/useAppStore';
 import StatCard from '@/components/StatCard';
 import { formatDateTime, formatRelativeTime } from '@/utils/format';
 
 const ProfilePage: React.FC = () => {
-  const { currentUser } = useUserStore();
+  const currentUser = useAppStore(s => s.currentUser);
+  const signUpRecords = useAppStore(s => s.signUpRecords);
+  const contributionRecords = useAppStore(s => s.contributionRecords);
+  const thankRecords = useAppStore(s => s.thankRecords);
+
 
   useDidShow(() => {
     console.log('[Profile] Page did show');
@@ -71,7 +73,7 @@ const ProfilePage: React.FC = () => {
       <View className={styles.statsGrid}>
         <StatCard value={currentUser.contributionCount} label="贡献次数" />
         <StatCard value={currentUser.thankedCount} label="被感谢" variant="warm" />
-        <StatCard value={mockSignUpRecords.length} label="参与活动" variant="success" />
+        <StatCard value={signUpRecords.length} label="参与活动" variant="success" />
       </View>
 
       <View className={styles.section}>
@@ -82,7 +84,7 @@ const ProfilePage: React.FC = () => {
           </Text>
           <Text className={styles.viewAll}>查看全部 ›</Text>
         </View>
-        {mockContributionRecords.slice(0, 3).map((record) => (
+        {contributionRecords.slice(0, 3).map((record) => (
           <View key={record.id} className={styles.recordItem}>
             <View className={classnames(styles.recordIcon, getRecordIconClass(record.type))}>
               <Text>{getRecordIcon(record.type)}</Text>
@@ -107,7 +109,7 @@ const ProfilePage: React.FC = () => {
           </Text>
           <Text className={styles.viewAll}>查看全部 ›</Text>
         </View>
-        {mockThankRecords.slice(0, 2).map((thank) => (
+        {thankRecords.slice(0, 2).map((thank) => (
           <View key={thank.id} className={styles.thankItem}>
             <View className={styles.thankHeader}>
               <Image
@@ -131,7 +133,7 @@ const ProfilePage: React.FC = () => {
           </Text>
           <Text className={styles.viewAll}>查看全部 ›</Text>
         </View>
-        {mockSignUpRecords.slice(0, 3).map((record) => (
+        {signUpRecords.slice(0, 3).map((record) => (
           <View key={record.id} className={styles.recordItem}>
             <View className={classnames(styles.recordIcon, styles.recordIconWarm)}>
               <Text>📅</Text>

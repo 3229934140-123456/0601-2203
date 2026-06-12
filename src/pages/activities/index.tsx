@@ -3,9 +3,7 @@ import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
-import { useUserStore } from '@/store/useUserStore';
-import { mockActivityList } from '@/data/mockActivity';
-import { Activity } from '@/types';
+import { useAppStore } from '@/store/useAppStore';
 import ActivityCard from '@/components/ActivityCard';
 import StatCard from '@/components/StatCard';
 
@@ -17,22 +15,28 @@ const STATUS_TABS = [
 ];
 
 const ActivitiesPage: React.FC = () => {
-  const { currentUser } = useUserStore();
+  const currentUser = useAppStore(s => s.currentUser);
+  const activityList = useAppStore(s => s.activityList);
+  const signUpRecords = useAppStore(s => s.signUpRecords);
   const [activeStatus, setActiveStatus] = useState('all');
-  const activityList = mockActivityList;
 
   useDidShow(() => {
     console.log('[Activities] Page did show');
   });
 
   const stats = useMemo(() => {
+    const mySignUpCount = signUpRecords.filter(r => {
+      const act = activityList.find(a => a.id === r.activityId);
+      return act && act.signedParticipants.includes(currentUser.id);
+    }).length;
+    const myCount = activityList.filter(a => a.signedParticipants.includes(currentUser.id)).length;
     return {
       upcoming: activityList.filter(a => a.status === 'upcoming').length,
       ongoing: activityList.filter(a => a.status === 'ongoing').length,
       ended: activityList.filter(a => a.status === 'ended').length,
-      mySignup: 4,
+      mySignup: myCount > 0 ? myCount : mySignUpCount,
     };
-  }, [activityList]);
+  }, [activityList, signUpRecords, currentUser.id]);
 
   const filteredList = useMemo(() => {
     if (activeStatus === 'all') return activityList;
@@ -40,7 +44,6 @@ const ActivitiesPage: React.FC = () => {
   }, [activityList, activeStatus]);
 
   const handleCreate = () => {
-    console.log('[Activities] Create button clicked');
     if (currentUser.isPresident) {
       Taro.navigateTo({ url: '/pages/create-activity/index' });
     } else {
@@ -49,11 +52,10 @@ const ActivitiesPage: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    console.log('[Activities] Pull down refresh');
     setTimeout(() => {
       Taro.stopPullDownRefresh();
       Taro.showToast({ title: '刷新成功', icon: 'success' });
-    }, 1000);
+    }, 500);
   };
 
   return (

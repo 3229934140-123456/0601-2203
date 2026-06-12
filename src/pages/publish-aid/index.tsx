@@ -4,7 +4,7 @@ import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import { AidType } from '@/types';
-import { useUserStore } from '@/store/useUserStore';
+import { useAppStore } from '@/store/useAppStore';
 
 const TYPE_OPTIONS = [
   { value: 'borrow' as AidType, label: '借物', icon: '📦' },
@@ -14,6 +14,7 @@ const TYPE_OPTIONS = [
 ];
 
 const PublishAidPage: React.FC = () => {
+  const addMutualAid = useAppStore(s => s.addMutualAid);
   const [formData, setFormData] = useState({
     type: 'borrow' as AidType,
     title: '',
@@ -40,8 +41,16 @@ const PublishAidPage: React.FC = () => {
       Taro.showToast({ title: '请输入标题', icon: 'none' });
       return;
     }
+    if (formData.title.trim().length < 2) {
+      Taro.showToast({ title: '标题至少2个字符', icon: 'none' });
+      return;
+    }
     if (!formData.description.trim()) {
       Taro.showToast({ title: '请输入详细描述', icon: 'none' });
+      return;
+    }
+    if (formData.description.trim().length < 5) {
+      Taro.showToast({ title: '描述至少5个字符', icon: 'none' });
       return;
     }
     if (!formData.location.trim()) {
@@ -52,16 +61,29 @@ const PublishAidPage: React.FC = () => {
       Taro.showToast({ title: '请输入联系方式', icon: 'none' });
       return;
     }
+    const validDays = parseInt(formData.validDays);
+    if (isNaN(validDays) || validDays < 1 || validDays > 30) {
+      Taro.showToast({ title: '有效期请输入1-30天', icon: 'none' });
+      return;
+    }
 
-    console.log('[PublishAid] Submit form:', formData);
-    Taro.showModal({
-      title: '发布成功',
-      content: '您的求助信息已发布，等待其他同学认领',
-      showCancel: false,
-      success: () => {
-        Taro.navigateBack();
-      },
+    const validUntil = new Date();
+    validUntil.setDate(validUntil.getDate() + validDays);
+
+    const newAid = addMutualAid({
+      type: formData.type,
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      location: formData.location.trim(),
+      contact: formData.contact.trim(),
+      validUntil: validUntil.toISOString(),
     });
+
+    console.log('[PublishAid] Submit success:', newAid.id);
+    Taro.showToast({ title: '发布成功', icon: 'success', duration: 1500 });
+    setTimeout(() => {
+      Taro.navigateBack();
+    }, 1500);
   };
 
   const isFormValid = formData.title.trim() && formData.description.trim() &&
